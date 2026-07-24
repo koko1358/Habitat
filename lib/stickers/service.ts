@@ -67,6 +67,14 @@ export async function createSticker(
     active: true,
   };
 
+  console.log(
+    "[TapHabit:sticker] created token=%o (len=%d) habitId=%o origin=%o",
+    sticker.token,
+    sticker.token.length,
+    sticker.habitId,
+    typeof window !== "undefined" ? window.location.origin : "(no window)"
+  );
+
   try {
     await db.nfcStickers.add(sticker);
   } catch (error) {
@@ -120,7 +128,36 @@ export async function getAllStickers(): Promise<NfcSticker[]> {
 export async function getStickerByToken(
   token: string
 ): Promise<NfcSticker | undefined> {
-  return db.nfcStickers.get({ token });
+  // Diagnostic: dump every token this browser's IndexedDB actually has, so
+  // a "not found" can be told apart from "found, but in the wrong browser
+  // storage context" (the iOS Safari-vs-installed-PWA split) at a glance.
+  const all = await db.nfcStickers.toArray();
+  const match = all.find((s) => s.token === token);
+
+  console.log(
+    "[TapHabit:sticker] lookup received=%o (len=%d) storedCount=%d storedTokens=%o matchFound=%o",
+    token,
+    token.length,
+    all.length,
+    all.map((s) => ({ token: s.token, len: s.token.length, active: s.active })),
+    Boolean(match)
+  );
+
+  return match;
+}
+
+/** Same lookup, plus the raw diagnostic data — used by the tap page's on-screen debug panel (no devtools needed on iPhone). */
+export async function getStickerByTokenWithDiagnostics(token: string): Promise<{
+  sticker: NfcSticker | undefined;
+  storedCount: number;
+  storedTokens: string[];
+}> {
+  const all = await db.nfcStickers.toArray();
+  return {
+    sticker: all.find((s) => s.token === token),
+    storedCount: all.length,
+    storedTokens: all.map((s) => s.token),
+  };
 }
 
 export async function getStickersForHabit(habitId: string): Promise<NfcSticker[]> {

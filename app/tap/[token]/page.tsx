@@ -5,7 +5,7 @@ import { useParams } from "next/navigation";
 import Link from "next/link";
 import { toast } from "sonner";
 import { ensureSettings } from "@/lib/db/db";
-import { getStickerByToken, recordStickerTap } from "@/lib/stickers/service";
+import { getStickerByTokenWithDiagnostics, recordStickerTap } from "@/lib/stickers/service";
 import { getHabitById } from "@/lib/habits/service";
 import {
   createHabitCompletion,
@@ -19,9 +19,15 @@ import type { Habit } from "@/types/domain";
 
 const DEDUPE_WINDOW_MS = 60_000;
 
+interface NotFoundDiagnostics {
+  receivedToken: string;
+  storedCount: number;
+  storedTokens: string[];
+}
+
 type TapState =
   | { status: "loading" }
-  | { status: "invalid"; reason: string }
+  | { status: "invalid"; reason: string; diagnostics?: NotFoundDiagnostics }
   | {
       status: "success";
       habit: Habit;
@@ -39,9 +45,30 @@ export default function TapPage() {
     hasProcessed.current = true;
 
     async function processTap() {
-      const sticker = await getStickerByToken(params.token);
+      const receivedToken = params.token;
+      console.log(
+        "[TapHabit:tap] received token=%o (len=%d) full pathname=%o",
+        receivedToken,
+        receivedToken?.length,
+        typeof window !== "undefined" ? window.location.pathname : "(no window)"
+      );
+
+      const { sticker, storedCount, storedTokens } =
+        await getStickerByTokenWithDiagnostics(receivedToken);
+
+      console.log(
+        "[TapHabit:tap] lookup result found=%o storedCount=%d storedTokens=%o",
+        Boolean(sticker),
+        storedCount,
+        storedTokens
+      );
+
       if (!sticker) {
-        setState({ status: "invalid", reason: "This sticker link isn't recognized." });
+        setState({
+          status: "invalid",
+          reason: "This sticker link isn't recognized.",
+          diagnostics: { receivedToken, storedCount, storedTokens },
+        });
         return;
       }
       if (!sticker.active) {
@@ -119,6 +146,7 @@ export default function TapPage() {
         <Button className="mt-2" render={<Link href="/" />}>
           Back to Dashboard
         </Button>
+        {state.diagnostics ? <NotFoundDebugPanel {...state.diagnostics} /> : null}
       </div>
     );
   }
@@ -129,6 +157,49 @@ export default function TapPage() {
       completedAt={state.completedAt}
       timezone={state.timezone}
     />
+  );
+}
+
+/**
+ * Visible (not just console) diagnostics for a "sticker not recognized" tap
+ * — iPhone Safari's console isn't reachable without a Mac + cable, so this
+ * is the fastest way to tell "wrong browser storage context" (0 stickers,
+ * or none of the stored tokens match) apart from a genuine typo/bad link.
+ */
+function NotFoundDebugPanel({
+  receivedToken,
+  storedCount,
+  storedTokens,
+}: NotFoundDiagnostics) {
+  return (
+    <div className="mt-4 w-full max-w-sm rounded-xl border border-dashed border-border bg-muted/50 p-3 text-left text-xs text-muted-foreground">
+      <p className="font-medium text-foreground">Debug info</p>
+      <p className="mt-1 break-all">
+        Received token: <span className="font-mono">{receivedToken || "(empty)"}</span>
+      </p>
+      <p>Stickers in this browser&apos;s storage: {storedCount}</p>
+      {storedCount === 0 ? (
+        <p className="mt-2">
+          This browser has <strong>zero</strong> stickers saved. If you
+          created the sticker in Safari but opened this link from the
+          Home Screen app (or vice versa), that&apos;s almost certainly why —
+          on iPhone those can be separate storage contexts. Open the sticker
+          link in the same app/browser where you created it on
+          <code> /stickers</code>.
+        </p>
+      ) : (
+        <>
+          <p className="mt-2">Tokens stored here:</p>
+          <ul className="mt-1 space-y-0.5">
+            {storedTokens.map((t) => (
+              <li key={t} className="break-all font-mono">
+                {t}
+              </li>
+            ))}
+          </ul>
+        </>
+      )}
+    </div>
   );
 }
 

@@ -26,6 +26,13 @@ export function StickerCard({
   const url = stickerUrl(origin, sticker.token);
 
   async function handleCopy() {
+    console.log(
+      "[TapHabit:sticker] copying url=%o token=%o (len=%d) origin=%o",
+      url,
+      sticker.token,
+      sticker.token.length,
+      origin
+    );
     try {
       await navigator.clipboard.writeText(url);
       setCopied(true);
