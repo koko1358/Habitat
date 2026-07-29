@@ -3,8 +3,6 @@
 import { useMemo } from "react";
 import { useSettings } from "@/hooks/use-settings";
 import { SettingsForm } from "@/components/settings/settings-form";
-import { ThemeToggle } from "@/components/settings/theme-toggle";
-import { Label } from "@/components/ui/label";
 import { ListPageSkeleton } from "@/components/shared/skeletons";
 
 function getTimezones(): string[] {
@@ -25,11 +23,6 @@ export default function SettingsPage() {
   return (
     <div className="max-w-md space-y-6">
       <h1 className="text-2xl font-semibold">Settings</h1>
-
-      <div className="space-y-2">
-        <Label>Appearance</Label>
-        <ThemeToggle />
-      </div>
 
       <SettingsForm settings={settings} timezones={timezones} />
     </div>

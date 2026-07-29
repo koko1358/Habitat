@@ -127,7 +127,7 @@ npm run build        # production build
 5. Go to `/history` — completions show up there, grouped by day.
 6. **Refresh the page** — everything persists (it's in IndexedDB, not
    memory).
-7. Go to `/stickers`, create a sticker for that habit, and open its tap
+7. Go to `/maker`, create a sticker for that habit, and open its tap
    link (`/tap/<token>`) directly — it completes the habit and shows a
    success screen with Undo.
 
@@ -199,7 +199,7 @@ then redeploy with `vercel --prod`.
 1. Open the Vercel URL in **Safari**.
 2. Create a test habit.
 3. Refresh and confirm it's still there.
-4. Go to `/stickers` and create a sticker for that habit.
+4. Go to `/maker` and create a sticker for that habit.
 5. Confirm the copied link uses your **Vercel domain**, not
    `localhost`.
 6. Open the `/tap/[token]` link manually (paste it in a new Safari tab).

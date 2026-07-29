@@ -7,9 +7,27 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: "General Sans", ui-rounded, -apple-system, sans-serif;
+  --font-mono: var(--font-space-mono), "Space Mono", monospace;
   --font-heading: var(--font-sans);
+
+  /* Habitap design tokens — extracted from taphabit:design.html. Used by
+     the Today, Summary, and Sticker Maker screens. */
+  --color-hb-page-top: var(--hb-page-top);
+  --color-hb-page-bot: var(--hb-page-bot);
+  --color-hb-card: var(--hb-card);
+  --color-hb-ink: var(--hb-ink);
+  --color-hb-ink-dim: var(--hb-ink-dim);
+  --color-hb-ink-faint: var(--hb-ink-faint);
+  --color-hb-pip-off: var(--hb-pip-off);
+  --color-hb-check-off: var(--hb-check-off);
+  --color-hb-tab-bg: var(--hb-tab-bg);
+  --color-hb-field: var(--hb-field);
+  --color-hb-field-border: var(--hb-field-border);
+  --radius-hb-card: 26px;
+  --radius-hb-field: 14px;
+  --radius-hb-btn: 16px;
+  --radius-hb-pill: 22px;
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -49,7 +67,20 @@
 }
 
 :root {
-  --background: oklch(0.99 0.006 75);
+  /* Habitap design tokens — exact values from taphabit:design.html */
+  --hb-page-top: #f7f5f0;
+  --hb-page-bot: #ece8df;
+  --hb-card: #ffffff;
+  --hb-ink: #1c1d1a;
+  --hb-ink-dim: rgba(28, 29, 26, 0.42);
+  --hb-ink-faint: rgba(28, 29, 26, 0.22);
+  --hb-pip-off: #edeae2;
+  --hb-check-off: #f0eee6;
+  --hb-tab-bg: #e9e5db;
+  --hb-field: #f4f2ec;
+  --hb-field-border: #e7e3d9;
+
+  --background: #f7f5f0;
   --foreground: oklch(0.2 0.015 45);
   --card: oklch(1 0.004 75);
   --card-foreground: oklch(0.2 0.015 45);
@@ -83,39 +114,10 @@
   --sidebar-ring: oklch(0.62 0.15 45 / 60%);
 }
 
-.dark {
-  --background: oklch(0.19 0.012 45);
-  --foreground: oklch(0.96 0.008 75);
-  --card: oklch(0.23 0.014 45);
-  --card-foreground: oklch(0.96 0.008 75);
-  --popover: oklch(0.23 0.014 45);
-  --popover-foreground: oklch(0.96 0.008 75);
-  --primary: oklch(0.72 0.15 55);
-  --primary-foreground: oklch(0.2 0.02 45);
-  --secondary: oklch(0.29 0.016 45);
-  --secondary-foreground: oklch(0.96 0.008 75);
-  --muted: oklch(0.29 0.016 45);
-  --muted-foreground: oklch(0.72 0.015 60);
-  --accent: oklch(0.32 0.03 55);
-  --accent-foreground: oklch(0.96 0.008 75);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.72 0.15 55 / 60%);
-  --chart-1: oklch(0.72 0.15 55);
-  --chart-2: oklch(0.78 0.12 75);
-  --chart-3: oklch(0.62 0.14 35);
-  --chart-4: oklch(0.85 0.08 90);
-  --chart-5: oklch(0.55 0.12 45);
-  --sidebar: oklch(0.21 0.013 45);
-  --sidebar-foreground: oklch(0.96 0.008 75);
-  --sidebar-primary: oklch(0.72 0.15 55);
-  --sidebar-primary-foreground: oklch(0.2 0.02 45);
-  --sidebar-accent: oklch(0.32 0.03 55);
-  --sidebar-accent-foreground: oklch(0.96 0.008 75);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.72 0.15 55 / 60%);
-}
+/* No .dark block: taphabit:design.html is light-only, and the theme is
+   forced to light in app/layout.tsx (ThemeProvider forcedTheme="light"),
+   so a dark variant would never render — inventing one would just be
+   unused, unverifiable guesswork. */
 
 @layer base {
   * {
@@ -123,8 +125,66 @@
   }
   body {
     @apply bg-background text-foreground;
+    background-image: linear-gradient(
+      180deg,
+      var(--hb-page-top) 0%,
+      var(--hb-page-bot) 100%
+    );
+    background-attachment: fixed;
   }
   html {
     @apply font-sans;
+  }
+}
+
+@layer utilities {
+  /* Card shadow from taphabit:design.html's .habit-card / .sum-card / .maker-card */
+  .hb-card-shadow {
+    box-shadow:
+      0 1px 2px rgba(20, 20, 15, 0.04),
+      0 10px 22px -16px rgba(20, 20, 15, 0.18);
+  }
+  .hb-list-item-shadow {
+    box-shadow:
+      0 1px 2px rgba(20, 20, 15, 0.04),
+      0 8px 18px -14px rgba(20, 20, 15, 0.18);
+  }
+
+  /* Ported from taphabit:design.html's `.field` (Maker cards' inputs/select). */
+  .hb-field {
+    width: 100%;
+    background: var(--hb-field);
+    border: 1px solid var(--hb-field-border);
+    border-radius: var(--radius-hb-field);
+    padding: 12px 14px;
+    color: var(--hb-ink);
+    font-size: 14px;
+    font-weight: 600;
+    outline: none;
+  }
+  .hb-field:focus {
+    border-color: var(--hb-ink-faint);
+  }
+  .hb-field::placeholder {
+    color: var(--hb-ink-faint);
+  }
+
+  /* Ported from taphabit:design.html's `.gen-btn`. */
+  .hb-gen-btn {
+    width: 100%;
+    background: var(--hb-ink);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius-hb-btn);
+    padding: 14px;
+    font-weight: 700;
+    font-size: 14px;
+    letter-spacing: -0.01em;
+  }
+  .hb-gen-btn:active {
+    transform: scale(0.98);
+  }
+  .hb-gen-btn:disabled {
+    opacity: 0.6;
   }
 }

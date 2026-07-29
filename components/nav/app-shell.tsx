@@ -2,8 +2,8 @@
 
 import { useEffect, type ReactNode } from "react";
 import { ensureSettings } from "@/lib/db/db";
-import { Sidebar } from "@/components/nav/sidebar";
-import { BottomNav } from "@/components/nav/bottom-nav";
+import { HabitHeader } from "@/components/nav/habit-header";
+import { TabSwitcher } from "@/components/nav/tab-switcher";
 import { OfflineIndicator } from "@/components/nav/offline-indicator";
 
 export function AppShell({ children }: { children: ReactNode }) {
@@ -19,20 +19,18 @@ export function AppShell({ children }: { children: ReactNode }) {
   }, []);
 
   return (
-    <div className="flex min-h-dvh bg-background">
-      <Sidebar />
+    <div className="flex min-h-dvh flex-col">
+      <OfflineIndicator />
 
-      <div className="flex min-w-0 flex-1 flex-col">
-        <OfflineIndicator />
+      <div className="mx-auto w-full max-w-md flex-1 px-5 pt-[calc(env(safe-area-inset-top)+22px)] pb-10 md:px-8">
+        <HabitHeader />
 
-        <main className="flex-1 pb-20 md:pb-0">
-          <div className="mx-auto w-full max-w-3xl px-4 py-6 pt-[calc(env(safe-area-inset-top)+1.5rem)] md:px-8 md:py-8 md:pt-8">
-            {children}
-          </div>
-        </main>
+        <div className="mt-4 mb-3">
+          <TabSwitcher />
+        </div>
+
+        <main>{children}</main>
       </div>
-
-      <BottomNav />
     </div>
   );
 }

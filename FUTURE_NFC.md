@@ -22,8 +22,12 @@ from `crypto.getRandomValues`), `createdAt`, `updatedAt`, `lastTappedAt`,
 `active`. Managed entirely client-side via `lib/stickers/service.ts` — no
 backend, matching the rest of the app.
 
-**`/stickers`** — create/rename/regenerate/deactivate/delete stickers,
-copy the tap link, and generate a QR code for testing (`components/stickers/`).
+**`/maker`** — one screen, two stacked cards: quick habit creation, then
+sticker generation for whatever habit was just picked (its dropdown
+updates live as habits are created, no navigation between the two).
+Below that, a list of existing stickers with
+rename/regenerate/deactivate/delete actions and a QR code for testing
+(`components/maker/`, backed by the unchanged `lib/stickers/service.ts`).
 
 **`/tap/[token]`** (`app/tap/[token]/page.tsx`) — the route a physical tag
 opens:
