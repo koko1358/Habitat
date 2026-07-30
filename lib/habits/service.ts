@@ -10,6 +10,8 @@ export interface HabitFormState {
   errors: HabitFormFieldErrors;
   formError: string | null;
   success: boolean;
+  /** Set on a successful *create* only — lets the caller advance to a next step (e.g. generating a sticker) without a re-fetch. */
+  habitId?: string;
 }
 
 export const initialHabitFormState: HabitFormState = {
@@ -75,7 +77,7 @@ export async function createHabit(
     };
   }
 
-  return { errors: {}, formError: null, success: true };
+  return { errors: {}, formError: null, success: true, habitId: habit.id };
 }
 
 export async function updateHabit(
@@ -126,10 +128,21 @@ export async function setHabitActive(habitId: string, isActive: boolean) {
 }
 
 export async function deleteHabit(habitId: string) {
-  await db.transaction("rw", db.habits, db.habitCompletions, async () => {
-    await db.habitCompletions.where("habitId").equals(habitId).delete();
-    await db.habits.delete(habitId);
-  });
+  // Cascades to habitCompletions AND nfcStickers — a habit's sticker(s)
+  // are meaningless (and un-openable) once the habit they tap-complete no
+  // longer exists, so deleting one without the other would silently leave
+  // an orphaned, dead-end sticker record behind.
+  await db.transaction(
+    "rw",
+    db.habits,
+    db.habitCompletions,
+    db.nfcStickers,
+    async () => {
+      await db.habitCompletions.where("habitId").equals(habitId).delete();
+      await db.nfcStickers.where("habitId").equals(habitId).delete();
+      await db.habits.delete(habitId);
+    }
+  );
 }
 
 export async function getActiveHabits(): Promise<Habit[]> {

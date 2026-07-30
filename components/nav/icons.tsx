@@ -1,6 +1,9 @@
 /**
- * Tab icons ported verbatim from taphabit:design.html's `.tab-btn` SVGs
- * (Today = 4-square grid, Summary = 3-bar chart, Maker = 8-point sparkle).
+ * Tab icons. Today/Summary are ported verbatim from taphabit:design.html's
+ * `.tab-btn` SVGs (4-square grid, 3-bar chart) — the mockup's third tab
+ * ("Maker") no longer exists (habit + sticker creation both live on
+ * /habits now), so its sparkle icon was replaced with a checklist icon in
+ * the same stroke-based style for the Habits tab.
  * Colored via `currentColor` so the parent's text color drives
  * active/inactive state, exactly like the mockup's `.tab-btn` /
  * `.tab-btn.active` CSS.
@@ -29,15 +32,27 @@ export function SummaryTabIcon({ className }: IconProps) {
   );
 }
 
-export function MakerTabIcon({ className }: IconProps) {
+export function HabitsTabIcon({ className }: IconProps) {
   return (
     <svg viewBox="0 0 24 24" fill="none" className={className} aria-hidden>
+      <path d="M9 6h11" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+      <path d="M9 12h11" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+      <path d="M9 18h11" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
       <path
-        d="M12 2 L14.5 9.5 L22 12 L14.5 14.5 L12 22 L9.5 14.5 L2 12 L9.5 9.5 Z"
+        d="M3.5 6l1.25 1.25L7 4.75"
         stroke="currentColor"
-        strokeWidth="1.8"
+        strokeWidth="2"
+        strokeLinecap="round"
         strokeLinejoin="round"
       />
+      <path
+        d="M3.5 12l1.25 1.25L7 10.75"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <circle cx="5" cy="18" r="1.5" fill="currentColor" />
     </svg>
   );
 }

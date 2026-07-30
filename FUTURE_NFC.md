@@ -22,12 +22,15 @@ from `crypto.getRandomValues`), `createdAt`, `updatedAt`, `lastTappedAt`,
 `active`. Managed entirely client-side via `lib/stickers/service.ts` — no
 backend, matching the rest of the app.
 
-**`/maker`** — one screen, two stacked cards: quick habit creation, then
-sticker generation for whatever habit was just picked (its dropdown
-updates live as habits are created, no navigation between the two).
-Below that, a list of existing stickers with
-rename/regenerate/deactivate/delete actions and a QR code for testing
-(`components/maker/`, backed by the unchanged `lib/stickers/service.ts`).
+**`/habits`** — the single habit interface. Creating a habit
+(`components/habits/habit-form-dialog.tsx`) flows straight into an
+optional second step, `HabitStickerPanel`
+(`components/habits/habit-sticker-panel.tsx`), to generate its first
+sticker without leaving the dialog. The same panel reopens from an
+existing habit's row (`HabitStickerDialog`) to add more stickers or
+rename/regenerate/deactivate/delete/QR-test existing ones — one habit
+interface, sticker creation and management included, not a separate
+screen.
 
 **`/tap/[token]`** (`app/tap/[token]/page.tsx`) — the route a physical tag
 opens:
@@ -46,8 +49,9 @@ opens:
 
 ## Writing the link to a physical NFC sticker (NFC Tools)
 
-1. On `/stickers`, create a sticker and tap **Copy Link** — you get
-   something like `https://your-app.vercel.app/tap/4ba9f22ab81cd91e`.
+1. On `/habits`, create a habit (or open an existing one's **Sticker**
+   button) and tap **Copy Link** — you get something like
+   `https://your-app.vercel.app/tap/4ba9f22ab81cd91e`.
 2. Install **NFC Tools** (iOS App Store / Google Play — by wakdev).
 3. Open NFC Tools → **Write** → **Add a record** → **URL/URI**.
 4. Paste the copied link into the URL field and confirm.
@@ -56,7 +60,7 @@ opens:
 6. Stick it wherever the habit happens (e.g. the bathroom mirror for
    "Brush Teeth"). Tapping your phone on it opens the link and completes
    the habit.
-7. Use **QR Code** on the sticker's card in `/stickers` first to confirm
+7. Use **QR Code** on the sticker's card in `/habits` first to confirm
    the link itself works (scan it with your camera) before writing it to
    a physical tag — it's much faster to fix a wrong habit/link before
    it's on a sticker than after.

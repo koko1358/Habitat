@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/select";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { HabitFormDialog } from "@/components/habits/habit-form-dialog";
-import { HabitRow } from "@/components/habits/habit-row";
+import { SwipeableHabitRow } from "@/components/habits/swipeable-habit-row";
 import { EmptyState } from "@/components/shared/empty-state";
 import { createHabit } from "@/lib/habits/service";
 import type { Habit } from "@/types/domain";
@@ -44,8 +44,8 @@ export function HabitsView({ habits }: { habits: Habit[] }) {
 
   return (
     <div className="space-y-5">
-      <div className="flex items-center justify-between gap-3">
-        <h1 className="text-2xl font-semibold">Habits</h1>
+      <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
+        <h1 className="min-w-0 shrink text-2xl font-semibold">Habits</h1>
         <HabitFormDialog
           action={createHabit}
           trigger={
@@ -108,7 +108,7 @@ export function HabitsView({ habits }: { habits: Habit[] }) {
       ) : (
         <ul className="space-y-2">
           {filtered.map((habit) => (
-            <HabitRow key={habit.id} habit={habit} />
+            <SwipeableHabitRow key={habit.id} habit={habit} />
           ))}
         </ul>
       )}

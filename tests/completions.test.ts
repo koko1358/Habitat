@@ -37,6 +37,7 @@ async function makeHabit(overrides: Record<string, string> = {}) {
 beforeEach(async () => {
   await db.habits.clear();
   await db.habitCompletions.clear();
+  await db.nfcStickers.clear();
 });
 
 describe("createHabitCompletion", () => {
@@ -168,5 +169,28 @@ describe("deleteHabit", () => {
       .equals(habit.id)
       .toArray();
     expect(remainingCompletions).toHaveLength(0);
+  });
+
+  it("cascades to remove the habit's NFC stickers, leaving nothing orphaned", async () => {
+    const habit = await makeHabit();
+    await db.nfcStickers.add({
+      id: crypto.randomUUID(),
+      habitId: habit.id,
+      stickerName: "Test sticker",
+      room: "",
+      token: "abcdef0123456789",
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      lastTappedAt: null,
+      active: true,
+    });
+
+    await deleteHabit(habit.id);
+
+    const remainingStickers = await db.nfcStickers
+      .where("habitId")
+      .equals(habit.id)
+      .toArray();
+    expect(remainingStickers).toHaveLength(0);
   });
 });

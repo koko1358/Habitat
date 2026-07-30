@@ -185,7 +185,7 @@ function NotFoundDebugPanel({
           Home Screen app (or vice versa), that&apos;s almost certainly why —
           on iPhone those can be separate storage contexts. Open the sticker
           link in the same app/browser where you created it on
-          <code> /stickers</code>.
+          <code> /habits</code>.
         </p>
       ) : (
         <>

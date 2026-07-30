@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { DialogTrigger } from "@/components/ui/dialog";
 import { HabitFormDialog } from "@/components/habits/habit-form-dialog";
+import { HabitStickerDialog } from "@/components/habits/habit-sticker-dialog";
 import { DeleteHabitDialog } from "@/components/habits/delete-habit-dialog";
 import { setHabitActive, updateHabit } from "@/lib/habits/service";
 import type { Habit } from "@/types/domain";
@@ -41,7 +42,7 @@ export function HabitRow({ habit }: { habit: Habit }) {
   }
 
   return (
-    <li className="flex items-start gap-3 rounded-2xl border border-border bg-card p-4">
+    <div className="flex items-start gap-3 rounded-2xl border border-border bg-card p-4">
       <span className="text-2xl leading-none">{habit.icon}</span>
       <div className="min-w-0 flex-1">
         <div className="flex flex-wrap items-center gap-2">
@@ -74,6 +75,7 @@ export function HabitRow({ habit }: { habit: Habit }) {
             </DialogTrigger>
           }
         />
+        <HabitStickerDialog habit={habit} />
         <Button
           variant="ghost"
           size="sm"
@@ -84,6 +86,6 @@ export function HabitRow({ habit }: { habit: Habit }) {
         </Button>
         <DeleteHabitDialog habitId={habit.id} habitName={habit.name} />
       </div>
-    </li>
+    </div>
   );
 }

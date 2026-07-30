@@ -3,14 +3,17 @@
 import { useEffect, useState } from "react";
 import { WifiOff } from "lucide-react";
 
-function getInitialOnlineStatus() {
-  return typeof navigator === "undefined" ? true : navigator.onLine;
-}
-
 export function OfflineIndicator() {
-  const [isOnline, setIsOnline] = useState(getInitialOnlineStatus);
+  // Always starts `true` (matching the server, which has no `navigator` at
+  // all) — reading the real navigator.onLine synchronously here would run
+  // during the client's first render too, and if that first real reading
+  // is `false`, it'd render different content than the server did and
+  // throw a hydration mismatch. The real value is only applied post-mount.
+  const [isOnline, setIsOnline] = useState(true);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setIsOnline(navigator.onLine);
     const handleOnline = () => setIsOnline(true);
     const handleOffline = () => setIsOnline(false);
     window.addEventListener("online", handleOnline);

@@ -19,10 +19,15 @@ export function AppShell({ children }: { children: ReactNode }) {
   }, []);
 
   return (
-    <div className="flex min-h-dvh flex-col">
+    // overflow-x-hidden here is a deliberate safety net: without it, any
+    // descendant that doesn't wrap/shrink correctly on a narrow viewport
+    // (a non-wrapping flex row, a fixed-width control, etc.) can silently
+    // widen the whole page instead of visibly breaking, pushing controls
+    // off-screen with no scrollbar hint on mobile to reveal it.
+    <div className="flex min-h-dvh flex-col overflow-x-hidden">
       <OfflineIndicator />
 
-      <div className="mx-auto w-full max-w-md flex-1 px-5 pt-[calc(env(safe-area-inset-top)+22px)] pb-10 md:px-8">
+      <div className="mx-auto w-full min-w-0 max-w-md flex-1 px-5 pt-[calc(env(safe-area-inset-top)+22px)] pb-10 md:px-8">
         <HabitHeader />
 
         <div className="mt-4 mb-3">

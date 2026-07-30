@@ -56,7 +56,8 @@ export function HabitForm({
     state: HabitFormState,
     formData: FormData
   ) => Promise<HabitFormState>;
-  onSuccess?: () => void;
+  /** Called with the new habit's id on a successful *create* (undefined for edits). */
+  onSuccess?: (createdHabitId?: string) => void;
 }) {
   const formId = useId();
   const [state, formAction, isPending] = useActionState(
@@ -73,11 +74,16 @@ export function HabitForm({
     habit?.allowMultiplePerDay ?? false
   );
 
+  // Depends on the whole `state` object (a fresh reference every dispatch),
+  // not `state.success` — a boolean dependency wouldn't change between two
+  // consecutive successful submissions (both `true`), silently skipping
+  // this effect on the second one.
   useEffect(() => {
     if (state.success) {
-      onSuccess?.();
+      onSuccess?.(state.habitId);
     }
-  }, [state.success, onSuccess]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state]);
 
   function toggleWeekday(day: number) {
     setSelectedWeekdays((prev) =>
