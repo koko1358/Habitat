@@ -1,4 +1,4 @@
-# TapHabit
+# Habitap
 
 A simple, personal, mobile-first habit tracker: see today's habits, mark
 them complete, watch streaks build, review history and trends, and tap
@@ -80,7 +80,7 @@ http://LOCAL-IP:3000
 
 ## Environment variable
 
-TapHabit has exactly one environment variable, and the app works without
+Habitap has exactly one environment variable, and the app works without
 it:
 
 ```

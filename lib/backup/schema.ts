@@ -13,6 +13,7 @@ const habitBackupSchema = z.object({
   selectedWeekdays: z.array(z.number().int().min(0).max(6)),
   allowMultiplePerDay: z.boolean(),
   allowOvershoot: z.boolean().default(true),
+  unlimitedPerDay: z.boolean().default(false),
   reminderTime: z.string().nullable(),
   isActive: z.boolean(),
   createdAt: z.string(),

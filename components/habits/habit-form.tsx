@@ -73,6 +73,9 @@ export function HabitForm({
   const [allowMultiple, setAllowMultiple] = useState(
     habit?.allowMultiplePerDay ?? false
   );
+  const [unlimitedPerDay, setUnlimitedPerDay] = useState(
+    habit?.unlimitedPerDay ?? false
+  );
 
   // Depends on the whole `state` object (a fresh reference every dispatch),
   // not `state.success` — a boolean dependency wouldn't change between two
@@ -164,7 +167,13 @@ export function HabitForm({
         <Select
           name="frequencyType"
           value={frequencyType}
-          onValueChange={(value) => setFrequencyType(value as HabitFrequencyType)}
+          onValueChange={(value) => {
+            const next = value as HabitFrequencyType;
+            setFrequencyType(next);
+            // Unlimited taps and a weekly target are contradictory — a
+            // weekly target needs a real count to know when the week is met.
+            if (next === "weekly_target") setUnlimitedPerDay(false);
+          }}
         >
           <SelectTrigger id="frequencyType" className="w-full">
             <SelectValue />
@@ -219,15 +228,22 @@ export function HabitForm({
               ? "Times per week"
               : "Daily target"}
           </Label>
-          <Input
-            id="targetCount"
-            name="targetCount"
-            type="number"
-            min={1}
-            max={50}
-            defaultValue={habit?.targetCount ?? 1}
-            required
-          />
+          {unlimitedPerDay ? (
+            <>
+              <Input value="Unlimited" disabled />
+              <input type="hidden" name="targetCount" value={1} />
+            </>
+          ) : (
+            <Input
+              id="targetCount"
+              name="targetCount"
+              type="number"
+              min={1}
+              max={50}
+              defaultValue={habit?.targetCount ?? 1}
+              required
+            />
+          )}
           {state.errors.targetCount ? (
             <p className="text-xs text-destructive">
               {state.errors.targetCount[0]}
@@ -259,10 +275,37 @@ export function HabitForm({
         </div>
         <Switch
           name="allowMultiplePerDay"
-          checked={allowMultiple}
+          checked={allowMultiple || unlimitedPerDay}
+          disabled={unlimitedPerDay}
           onCheckedChange={setAllowMultiple}
         />
       </div>
+
+      {frequencyType !== "weekly_target" ? (
+        <div className="flex items-center justify-between rounded-lg border border-border px-3 py-2.5">
+          <div>
+            <p className="text-sm font-medium">Unlimited completions per day</p>
+            <p className="text-xs text-muted-foreground">
+              No daily target — every tap counts, e.g. Drink Water. The
+              dashboard shows a running total instead of a fixed target.
+            </p>
+          </div>
+          <Switch
+            name="unlimitedPerDay"
+            checked={unlimitedPerDay}
+            onCheckedChange={(checked) => {
+              setUnlimitedPerDay(checked);
+              if (checked) setAllowMultiple(true);
+            }}
+          />
+        </div>
+      ) : null}
+
+      {state.errors.unlimitedPerDay ? (
+        <p className="text-xs text-destructive">
+          {state.errors.unlimitedPerDay[0]}
+        </p>
+      ) : null}
 
       <Button type="submit" disabled={isPending} className="h-11 w-full">
         {isPending

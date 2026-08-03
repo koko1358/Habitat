@@ -65,11 +65,20 @@ export async function createHabitCompletion(
   return completion;
 }
 
-/** Soft-deletes the most recent (non-deleted) completion for a habit — the "Undo" action. */
-export async function undoLatestHabitCompletion(habitId: string): Promise<void> {
+/**
+ * Soft-deletes the most recent (non-deleted) completion for a habit — the
+ * "Undo" action. Scoped to today's local date only (per `timezone`), so a
+ * multi-completion-per-day habit loses just its latest tap today, never a
+ * completion from an earlier day.
+ */
+export async function undoLatestHabitCompletion(
+  habitId: string,
+  timezone: string
+): Promise<void> {
+  const today = getLocalDateString(new Date(), timezone);
   const completions = await db.habitCompletions
-    .where("habitId")
-    .equals(habitId)
+    .where("[habitId+localDate]")
+    .equals([habitId, today])
     .toArray();
 
   const latest = completions

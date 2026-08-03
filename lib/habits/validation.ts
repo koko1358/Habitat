@@ -42,6 +42,7 @@ export const habitFormSchema = z
     selectedWeekdays: z.array(z.coerce.number().int().min(0).max(6)).default([]),
     allowMultiplePerDay: z.coerce.boolean().default(false),
     allowOvershoot: z.coerce.boolean().default(true),
+    unlimitedPerDay: z.coerce.boolean().default(false),
     reminderTime: z
       .string()
       .regex(TIME_PATTERN, "Use a valid time, like 08:30.")
@@ -53,6 +54,13 @@ export const habitFormSchema = z
     {
       message: "Pick at least one weekday.",
       path: ["selectedWeekdays"],
+    }
+  )
+  .refine(
+    (data) => !data.unlimitedPerDay || data.frequencyType !== "weekly_target",
+    {
+      message: "Unlimited completions isn't compatible with a weekly target.",
+      path: ["unlimitedPerDay"],
     }
   );
 

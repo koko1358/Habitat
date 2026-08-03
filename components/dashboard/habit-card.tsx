@@ -48,7 +48,7 @@ export function HabitCard({
   function undo() {
     startTransition(async () => {
       try {
-        await undoLatestHabitCompletion(habit.id);
+        await undoLatestHabitCompletion(habit.id, timezone);
       } catch (error) {
         toast.error(
           error instanceof Error ? error.message : "Couldn't undo completion"
@@ -74,7 +74,15 @@ export function HabitCard({
       </div>
 
       <div className="flex items-center justify-between">
-        {habit.targetCount > 1 ? (
+        {habit.unlimitedPerDay ? (
+          <RunningTotal
+            habit={habit}
+            accent={accent}
+            disabled={isPending}
+            onComplete={complete}
+            onUndo={undo}
+          />
+        ) : habit.targetCount > 1 ? (
           <PipRow habit={habit} accent={accent} disabled={isPending} onComplete={complete} onUndo={undo} />
         ) : (
           <CheckButton
@@ -121,6 +129,53 @@ function CheckButton({
         />
       </svg>
     </button>
+  );
+}
+
+function RunningTotal({
+  habit,
+  accent,
+  disabled,
+  onComplete,
+  onUndo,
+}: {
+  habit: HabitWithTodayStatus;
+  accent: string;
+  disabled: boolean;
+  onComplete: () => void;
+  onUndo: () => void;
+}) {
+  return (
+    <div className="flex items-center gap-2">
+      <button
+        type="button"
+        disabled={disabled}
+        onClick={onComplete}
+        aria-label="Log another completion"
+        className="flex h-[42px] items-center gap-1.5 rounded-full px-3.5 text-sm font-bold text-white transition-transform active:scale-95 disabled:opacity-60"
+        style={{ background: accent }}
+      >
+        <svg viewBox="0 0 24 24" fill="none" className="size-[15px]" aria-hidden>
+          <path
+            d="M12 5v14M5 12h14"
+            stroke="#fff"
+            strokeWidth="2.6"
+            strokeLinecap="round"
+          />
+        </svg>
+        {habit.completedCount} today
+      </button>
+      {habit.completedCount > 0 ? (
+        <button
+          type="button"
+          disabled={disabled}
+          onClick={onUndo}
+          className="text-xs font-medium text-hb-ink-dim underline decoration-dotted underline-offset-2 disabled:opacity-60"
+        >
+          Undo
+        </button>
+      ) : null}
+    </div>
   );
 }
 

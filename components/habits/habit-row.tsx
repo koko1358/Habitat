@@ -58,11 +58,14 @@ export function HabitRow({ habit }: { habit: Habit }) {
         ) : null}
         <p className="mt-1 text-xs text-muted-foreground">
           {frequencyLabel(habit)}
-          {habit.frequencyType !== "weekly_target" &&
-          habit.targetCount > 1
-            ? ` · ${habit.targetCount}x per day`
+          {habit.unlimitedPerDay
+            ? " · unlimited per day"
+            : habit.frequencyType !== "weekly_target" && habit.targetCount > 1
+              ? ` · ${habit.targetCount}x per day`
+              : ""}
+          {!habit.unlimitedPerDay && habit.allowMultiplePerDay
+            ? " · multiple per day"
             : ""}
-          {habit.allowMultiplePerDay ? " · multiple per day" : ""}
         </p>
       </div>
       <div className="flex shrink-0 flex-wrap items-center justify-end gap-1">

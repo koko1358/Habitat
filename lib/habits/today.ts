@@ -131,7 +131,12 @@ function buildHabitStatus(
       ? weeklyCompletionsSoFar
       : completionsToday.length;
 
-  const isComplete = completedCount >= habit.targetCount;
+  // Unlimited habits have no fixed target to reach — the day counts as
+  // "done" once at least one completion has landed, same as any other
+  // habit that doesn't cap out at a number.
+  const isComplete = habit.unlimitedPerDay
+    ? completedCount >= 1
+    : completedCount >= habit.targetCount;
 
   return {
     ...habit,

@@ -15,12 +15,12 @@ const spaceMono = Space_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "TapHabit",
+  title: "Habitap",
   description: "A simple, personal habit tracker for quick daily use.",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "TapHabit",
+    title: "Habitap",
   },
 };
 

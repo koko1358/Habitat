@@ -18,7 +18,7 @@ export function parseBackupFile(jsonText: string): ParsedBackup {
 
   const result = backupSchema.safeParse(raw);
   if (!result.success) {
-    throw new Error("That file doesn't look like a TapHabit backup.");
+    throw new Error("That file doesn't look like a Habitap backup.");
   }
 
   return {

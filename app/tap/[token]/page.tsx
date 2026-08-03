@@ -218,7 +218,7 @@ function TapSuccess({
   async function handleUndo() {
     setIsPending(true);
     try {
-      await undoLatestHabitCompletion(habit.id);
+      await undoLatestHabitCompletion(habit.id, timezone);
       setIsUndone(true);
       toast.success("Completion undone");
     } catch (error) {

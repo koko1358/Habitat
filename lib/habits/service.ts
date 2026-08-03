@@ -31,8 +31,16 @@ function parseHabitForm(formData: FormData) {
     selectedWeekdays: formData.getAll("selectedWeekdays"),
     allowMultiplePerDay: formData.get("allowMultiplePerDay") === "on",
     allowOvershoot: formData.get("allowOvershoot") !== "off",
+    unlimitedPerDay: formData.get("unlimitedPerDay") === "on",
     reminderTime: formData.get("reminderTime") || null,
   });
+}
+
+/** Unlimited taps implies "more than one per day" is allowed — keep that flag consistent regardless of what the form submitted. */
+function withUnlimitedImpliesMultiple<
+  T extends { unlimitedPerDay: boolean; allowMultiplePerDay: boolean },
+>(data: T): T {
+  return data.unlimitedPerDay ? { ...data, allowMultiplePerDay: true } : data;
 }
 
 export async function createHabit(
@@ -49,19 +57,21 @@ export async function createHabit(
     };
   }
 
+  const data = withUnlimitedImpliesMultiple(parsed.data);
   const now = new Date().toISOString();
   const habit: Habit = {
     id: crypto.randomUUID(),
-    name: parsed.data.name,
-    description: parsed.data.description,
-    icon: parsed.data.icon,
-    category: parsed.data.category,
-    frequencyType: parsed.data.frequencyType,
-    targetCount: parsed.data.targetCount,
-    selectedWeekdays: parsed.data.selectedWeekdays,
-    allowMultiplePerDay: parsed.data.allowMultiplePerDay,
-    allowOvershoot: parsed.data.allowOvershoot,
-    reminderTime: parsed.data.reminderTime,
+    name: data.name,
+    description: data.description,
+    icon: data.icon,
+    category: data.category,
+    frequencyType: data.frequencyType,
+    targetCount: data.targetCount,
+    selectedWeekdays: data.selectedWeekdays,
+    allowMultiplePerDay: data.allowMultiplePerDay,
+    allowOvershoot: data.allowOvershoot,
+    unlimitedPerDay: data.unlimitedPerDay,
+    reminderTime: data.reminderTime,
     isActive: true,
     createdAt: now,
     updatedAt: now,
@@ -95,18 +105,20 @@ export async function updateHabit(
     };
   }
 
+  const data = withUnlimitedImpliesMultiple(parsed.data);
   try {
     await db.habits.update(habitId, {
-      name: parsed.data.name,
-      description: parsed.data.description,
-      icon: parsed.data.icon,
-      category: parsed.data.category,
-      frequencyType: parsed.data.frequencyType,
-      targetCount: parsed.data.targetCount,
-      selectedWeekdays: parsed.data.selectedWeekdays,
-      allowMultiplePerDay: parsed.data.allowMultiplePerDay,
-      allowOvershoot: parsed.data.allowOvershoot,
-      reminderTime: parsed.data.reminderTime,
+      name: data.name,
+      description: data.description,
+      icon: data.icon,
+      category: data.category,
+      frequencyType: data.frequencyType,
+      targetCount: data.targetCount,
+      selectedWeekdays: data.selectedWeekdays,
+      allowMultiplePerDay: data.allowMultiplePerDay,
+      allowOvershoot: data.allowOvershoot,
+      unlimitedPerDay: data.unlimitedPerDay,
+      reminderTime: data.reminderTime,
       updatedAt: new Date().toISOString(),
     });
   } catch (error) {

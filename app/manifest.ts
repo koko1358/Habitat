@@ -2,8 +2,8 @@ import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "TapHabit",
-    short_name: "TapHabit",
+    name: "Habitap",
+    short_name: "Habitap",
     description: "A simple, personal habit tracker for quick daily use.",
     start_url: "/",
     scope: "/",

@@ -8,6 +8,7 @@ import {
   softDeleteCompletion,
   undoLatestHabitCompletion,
 } from "@/lib/completions/service";
+import { getLocalDateString } from "@/lib/timezone";
 
 const TIMEZONE = "Asia/Manila";
 
@@ -86,31 +87,60 @@ describe("undoLatestHabitCompletion", () => {
   it("soft-deletes the most recent completion, leaving earlier ones intact", async () => {
     const habit = await makeHabit({ allowMultiplePerDay: "on", targetCount: "5" });
 
-    await createHabitCompletion({
+    const first = await createHabitCompletion({
       habitId: habit.id,
       timezone: TIMEZONE,
       source: "manual",
-      completedAt: new Date("2026-01-15T02:00:00Z"),
+      completedAt: new Date(Date.now() - 60_000),
     });
     await createHabitCompletion({
       habitId: habit.id,
       timezone: TIMEZONE,
       source: "manual",
-      completedAt: new Date("2026-01-15T10:00:00Z"),
+      completedAt: new Date(),
     });
 
-    await undoLatestHabitCompletion(habit.id);
+    await undoLatestHabitCompletion(habit.id, TIMEZONE);
 
-    const remaining = await getCompletionsForDate(habit.id, "2026-01-15");
+    const today = getLocalDateString(new Date(), TIMEZONE);
+    const remaining = await getCompletionsForDate(habit.id, today);
     expect(remaining).toHaveLength(1);
-    expect(new Date(remaining[0].completedAt).toISOString()).toBe(
-      new Date("2026-01-15T02:00:00Z").toISOString()
-    );
+    expect(remaining[0].id).toBe(first.id);
   });
 
   it("does nothing when there are no completions to undo", async () => {
     const habit = await makeHabit();
-    await expect(undoLatestHabitCompletion(habit.id)).resolves.toBeUndefined();
+    await expect(
+      undoLatestHabitCompletion(habit.id, TIMEZONE)
+    ).resolves.toBeUndefined();
+  });
+
+  it("only undoes today's completion, leaving an earlier day's completion for the same habit intact", async () => {
+    const habit = await makeHabit({ allowMultiplePerDay: "on", targetCount: "5" });
+    const yesterdayInstant = new Date(Date.now() - 24 * 60 * 60 * 1000);
+
+    // A completion from a previous day (a different localDate) should never
+    // be touched by an undo triggered from today's card.
+    await createHabitCompletion({
+      habitId: habit.id,
+      timezone: TIMEZONE,
+      source: "manual",
+      completedAt: yesterdayInstant,
+    });
+    await createHabitCompletion({
+      habitId: habit.id,
+      timezone: TIMEZONE,
+      source: "manual",
+      completedAt: new Date(),
+    });
+
+    await undoLatestHabitCompletion(habit.id, TIMEZONE);
+
+    const yesterday = await getCompletionsForDate(
+      habit.id,
+      getLocalDateString(yesterdayInstant, TIMEZONE)
+    );
+    expect(yesterday).toHaveLength(1);
   });
 });
 

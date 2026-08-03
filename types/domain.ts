@@ -17,6 +17,15 @@ export interface Habit {
   allowMultiplePerDay: boolean;
   /** Whether completions beyond `targetCount` in a day are accepted. */
   allowOvershoot: boolean;
+  /**
+   * No fixed daily target at all — every tap (outside the tap-cooldown
+   * window) logs another completion with no upper cap. The dashboard shows
+   * a running total instead of pips, and the day counts as "done" for
+   * streak purposes once at least one completion has landed. Implies
+   * `allowMultiplePerDay`; mutually exclusive with `weekly_target`, which
+   * needs a real target count to know when a week is met.
+   */
+  unlimitedPerDay: boolean;
   reminderTime: string | null;
   isActive: boolean;
   createdAt: string;
